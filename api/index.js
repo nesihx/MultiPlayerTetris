@@ -1,7 +1,11 @@
-const path = require('path');
-const fs = require('fs');
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 
-module.exports = (req, res) => {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export default function handler(req, res) {
     try {
         let filePath;
         const { file } = req.query;
@@ -70,4 +74,4 @@ module.exports = (req, res) => {
         console.error('Static file serve error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
-};
+}

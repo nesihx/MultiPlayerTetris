@@ -326,7 +326,7 @@ const socket = io({
     reconnectionAttempts: 15,
     maxReconnectionAttempts: 15,
     randomizationFactor: 0.3,
-    path: '/socket.io/',
+    path: '/api/socket',
     autoConnect: true,
     pingTimeout: 60000,
     pingInterval: 25000
