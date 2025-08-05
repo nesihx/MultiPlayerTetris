@@ -10,8 +10,36 @@
       "destination": "/api/$1"
     },
     {
-      "source": "/(.*\\.(js|css|html|svg|gif|png|jpg|jpeg|ico))$",
-      "destination": "/api/index?file=$1"
+      "source": "/(.*).js",
+      "destination": "/api/index?file=$1.js"
+    },
+    {
+      "source": "/(.*).css",
+      "destination": "/api/index?file=$1.css"
+    },
+    {
+      "source": "/(.*).html",
+      "destination": "/api/index?file=$1.html"
+    },
+    {
+      "source": "/(.*).svg",
+      "destination": "/api/index?file=$1.svg"
+    },
+    {
+      "source": "/(.*).gif",
+      "destination": "/api/index?file=$1.gif"
+    },
+    {
+      "source": "/(.*).png",
+      "destination": "/api/index?file=$1.png"
+    },
+    {
+      "source": "/(.*).jpg",
+      "destination": "/api/index?file=$1.jpg"
+    },
+    {
+      "source": "/(.*).ico",
+      "destination": "/api/index?file=$1.ico"
     },
     {
       "source": "/(.*)",

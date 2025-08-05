@@ -4,9 +4,13 @@ const fs = require('fs');
 module.exports = (req, res) => {
     try {
         let filePath;
+        const { file } = req.query;
         
         // URL'ye göre dosya yolunu belirle
-        if (req.url === '/' || req.url === '/index.html') {
+        if (file) {
+            // Query parameter'dan gelen dosya
+            filePath = path.join(__dirname, '../public', file);
+        } else if (req.url === '/' || req.url === '/index.html') {
             filePath = path.join(__dirname, '../public/index.html');
         } else {
             // Static dosyalar için
@@ -14,10 +18,29 @@ module.exports = (req, res) => {
             filePath = path.join(__dirname, '../public', cleanUrl);
         }
         
+        // Security check - public klasörü dışına çıkmayı engelle
+        const publicDir = path.join(__dirname, '../public');
+        const resolvedPath = path.resolve(filePath);
+        const resolvedPublicDir = path.resolve(publicDir);
+        
+        if (!resolvedPath.startsWith(resolvedPublicDir)) {
+            res.status(403).json({ error: 'Access denied' });
+            return;
+        }
+        
         // Dosya var mı kontrol et
         if (!fs.existsSync(filePath)) {
-            res.status(404).json({ error: 'File not found' });
-            return;
+            // Index.html'e fallback
+            if (!file) {
+                filePath = path.join(__dirname, '../public/index.html');
+                if (!fs.existsSync(filePath)) {
+                    res.status(404).json({ error: 'File not found' });
+                    return;
+                }
+            } else {
+                res.status(404).json({ error: 'File not found' });
+                return;
+            }
         }
         
         // Dosya tipine göre content-type belirle
