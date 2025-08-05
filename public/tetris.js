@@ -316,20 +316,22 @@ function setupPowerButtons() {
 
 // WebSocket bağlantısı - Vercel için optimize edilmiş
 const socket = io({
-    transports: ['polling'],
-    upgrade: false,
-    timeout: 20000,
+    transports: ['polling', 'websocket'],
+    upgrade: true,
+    timeout: 30000,
     forceNew: false,
     reconnection: true,
-    reconnectionDelay: 2000,
+    reconnectionDelay: 1000,
     reconnectionDelayMax: 5000,
-    reconnectionAttempts: 10,
-    maxReconnectionAttempts: 10,
-    randomizationFactor: 0.5,
+    reconnectionAttempts: 15,
+    maxReconnectionAttempts: 15,
+    randomizationFactor: 0.3,
     path: '/socket.io/',
     autoConnect: true,
-    pingTimeout: 120000,
-    pingInterval: 25000
+    pingTimeout: 60000,
+    pingInterval: 25000,
+    rememberUpgrade: false,
+    parser: undefined
 });
 
 // Bağlantı hatalarını dinle
@@ -337,7 +339,7 @@ socket.on('connect_error', (error) => {
     console.error('Socket.IO bağlantı hatası:', error.message);
     const roomMessageEl = document.getElementById('roomMessage');
     if (roomMessageEl) {
-        roomMessageEl.textContent = `Sunucuya bağlanılamadı: ${error.message}`;
+        roomMessageEl.textContent = `Sunucuya bağlanılamadı: ${error.message}. Yeniden deneniyor...`;
     }
     
     // Ekranları güvenli konuma getir
@@ -358,13 +360,28 @@ socket.on('disconnect', (reason) => {
         roomMessageEl.textContent = 'Bağlantı kesildi. Yeniden bağlanmaya çalışılıyor...';
     }
     
-    // Belirli durumlarda manuel yeniden bağlanma
-    if (reason === 'io server disconnect' || reason === 'ping timeout' || reason === 'transport close') {
+    // Bağlantı kopma nedenine göre farklı stratejiler
+    if (reason === 'io server disconnect') {
+        // Sunucu bağlantıyı kasıtlı olarak kesti
+        setTimeout(() => {
+            if (!socket.connected) {
+                socket.connect();
+            }
+        }, 2000);
+    } else if (reason === 'ping timeout' || reason === 'transport close') {
+        // Network sorunları
         setTimeout(() => {
             if (!socket.connected) {
                 socket.connect();
             }
         }, 1000);
+    } else if (reason === 'transport error') {
+        // Transport hatası
+        setTimeout(() => {
+            if (!socket.connected) {
+                window.location.reload();
+            }
+        }, 5000);
     }
 });
 
@@ -373,6 +390,20 @@ socket.on('reconnect', (attemptNumber) => {
     const roomMessageEl = document.getElementById('roomMessage');
     if (roomMessageEl) {
         roomMessageEl.textContent = 'Başarıyla yeniden bağlandı.';
+        // 2 saniye sonra mesajı temizle
+        setTimeout(() => {
+            if (roomMessageEl.textContent === 'Başarıyla yeniden bağlandı.') {
+                roomMessageEl.textContent = '';
+            }
+        }, 2000);
+    }
+});
+
+socket.on('reconnect_attempt', (attemptNumber) => {
+    console.log('Yeniden bağlanma denemesi:', attemptNumber);
+    const roomMessageEl = document.getElementById('roomMessage');
+    if (roomMessageEl) {
+        roomMessageEl.textContent = `Yeniden bağlanma denemesi ${attemptNumber}...`;
     }
 });
 
@@ -400,7 +431,16 @@ socket.on('connect', () => {
     const roomMessageEl = document.getElementById('roomMessage');
     if (roomMessageEl) {
         roomMessageEl.textContent = 'Sunucuya bağlandı.';
+        // 2 saniye sonra mesajı temizle
+        setTimeout(() => {
+            if (roomMessageEl.textContent === 'Sunucuya bağlandı.') {
+                roomMessageEl.textContent = '';
+            }
+        }, 2000);
     }
+    
+    // Bağlantı test edildiğinde ping gönder
+    socket.emit('ping', Date.now());
 });
 
 // Bağlantı test mesajı

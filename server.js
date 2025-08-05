@@ -23,9 +23,18 @@ try {
 
 const app = express();
 
+// Express middleware for parsing
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
     res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// Socket.IO test endpoint
+app.get('/socket.io/test', (req, res) => {
+    res.json({ message: 'Socket.IO endpoint is working', status: 'OK' });
 });
 
 const server = http.createServer(app);
@@ -36,15 +45,17 @@ const io = new Server(server, {
         credentials: false
     },
     allowEIO3: true,
-    transports: ['polling'],
+    transports: ['polling', 'websocket'],
     pingTimeout: 60000,
     pingInterval: 25000,
     upgradeTimeout: 30000,
     maxHttpBufferSize: 1e6,
     connectTimeout: 45000,
     path: '/socket.io/',
-    serveClient: false,
-    cookie: false
+    serveClient: true,
+    cookie: false,
+    destroyUpgrade: false,
+    destroyUpgradeTimeout: 1000
 });
 
 // Hosting için port ayarı (cPanel otomatik port atar)
@@ -127,6 +138,11 @@ io.on('connection', (socket) => {
         
         // Bağlantı ping test
         socket.emit('connectionTest', 'Bağlantı başarılı');
+        
+        // Ping-pong test
+        socket.on('ping', (timestamp) => {
+            socket.emit('pong', timestamp);
+        });
         
         // Hata yakalama
         socket.on('error', (error) => {
@@ -292,7 +308,8 @@ io.on('connection', (socket) => {
 // Vercel için export
 if (process.env.VERCEL) {
     // Vercel serverless function olarak çalıştırılıyor
-    module.exports = app;
+    module.exports = server; // app yerine server export et
+    module.exports.io = io; // Socket.IO'yu da export et
 } else {
     // Local development
     server.listen(PORT, () => {

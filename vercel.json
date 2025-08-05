@@ -20,7 +20,7 @@
       "dest": "/server.js"
     },
     {
-      "src": "/(.*\\.(js|css|html|svg|gif|png|jpg|jpeg|ico))$",
+      "src": "/(.*\\.(js|css|html|svg|gif|png|jpg|jpeg|ico|min\\.js))$",
       "dest": "/public/$1"
     },
     {
@@ -30,5 +30,10 @@
   ],
   "env": {
     "VERCEL": "1"
+  },
+  "functions": {
+    "server.js": {
+      "maxDuration": 30
+    }
   }
 }
