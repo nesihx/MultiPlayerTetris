@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris Oyunu</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Oda seçimi ekranı -->
+    <div class="overlay-container" id="roomSelection">
+        <div class="modal-content">
+            <h2>Multiplayer Tetris</h2>
+            
+            <div class="nickname-input">
+                <input type="text" id="nicknameInput" placeholder="Kullanıcı adınızı girin" maxlength="20">
+            </div>
+            
+            <div class="tab-buttons">
+                <button class="active" onclick="switchTab('create')">Oda Oluştur</button>
+                <button onclick="switchTab('join')">Odaya Katıl</button>
+            </div>
+            
+            <form class="tab-content" id="createTab" style="display: flex;" onsubmit="createRoom(); return false;">
+                <input type="text" id="createRoomName" placeholder="Oda adı" required>
+                <input type="password" id="createRoomPassword" placeholder="Şifre (isteğe bağlı)">
+                <button type="submit">Oda Oluştur</button>
+            </form>
+            
+            <form class="tab-content" id="joinTab" onsubmit="joinRoom(); return false;">
+                <input type="text" id="joinRoomName" placeholder="Oda adı" required>
+                <input type="password" id="joinRoomPassword" placeholder="Şifre">
+                <button type="submit">Odaya Katıl</button>
+            </form>
+            
+            <div class="room-message" id="roomMessage"></div>
+        </div>
+    </div>
+
+    <!-- Bekleme ekranı -->
+    <div class="overlay-container" id="waitingRoom" style="display: none;">
+        <div class="modal-content">
+            <h3>Oda: <span id="currentRoomName"></span></h3>
+            <div class="waiting-players" id="waitingPlayers">
+                <span>Oyuncular bekleniyor...</span>
+            </div>
+            <button class="start-game-btn" id="startGameBtn" onclick="startMultiplayerGame()" style="display: none;">
+                Oyunu Başlat
+            </button>
+        </div>
+    </div>
+
+    <!-- Ana oyun ekranı -->
+    <div class="game-container" id="gameContainer">
+        <div class="game-info">
+            <h1>TETRIS</h1>
+            <div class="score">
+                <p>Skor: <span id="score">0</span></p>
+                <p>Seviye: <span id="level">1</span></p>
+                <p>Satır: <span id="lines">0</span></p>
+            </div>
+            <div class="next-piece">
+                <h3>Sonraki Parça</h3>
+                <canvas id="nextCanvas" width="100" height="100"></canvas>
+            </div>
+            <div class="special-powers">
+                <h3>Özel Güçler</h3>
+                <div class="powers-container">
+                    <div class="power" id="power-hourglass" data-power="hourglass" data-cost="100">
+                        <img src="images/kumsaati.svg" alt="Kum Saati">
+                        <span>100</span>
+                    </div>
+                    <div class="power" id="power-lightning" data-power="lightning" data-cost="200">
+                        <img src="images/yildirim.svg" alt="Yıldırım">
+                        <span>200</span>
+                    </div>
+                    <div class="power" id="power-bomb" data-power="bomb" data-cost="300">
+                        <img src="images/bomba.svg" alt="Bomba">
+                        <span>300</span>
+                    </div>
+                </div>
+            </div>
+            <div class="controls">
+                <h3>Kontroller</h3>
+                <p>← → : Hareket</p>
+                <p>↓ : Hızlı Düşür</p>
+                <p>↑ : Döndür</p>
+                <p>Boşluk : Hızlı Bırak</p>
+                <p>P : Duraklat</p>
+                <p>1,2,3 : Özel Güçler</p>
+            </div>
+        </div>
+        <div class="game-board">
+            <canvas id="gameCanvas" width="300" height="600"></canvas>
+        </div>
+        <div class="opponent-boards-container" id="opponent-boards-container">
+            <h3>Rakipler</h3>
+            <div id="opponent-canvases"></div>
+        </div>
+    </div>
+
+    <!-- Oyun sonu ekranı -->
+    <div class="game-over" id="gameOver">
+        <h2>Oyun Bitti!</h2>
+        <div class="leaderboard" id="leaderboard">
+            <h3>Sonuçlar</h3>
+            <div id="leaderboard-list"></div>
+        </div>
+        <p>Final Skorunuz: <span id="finalScore">0</span></p>
+        <button onclick="goBackToRoomSelection()">Ana Menüye Dön</button>
+    </div>
+
+    <!-- Duraklama ekranı -->
+    <div class="pause-screen" id="pauseScreen">
+        <h2>Oyun Duraklatıldı</h2>
+        <p>Devam etmek için P'ye basın</p>
+    </div>
+
+    <!-- Özel güç animasyon overlay -->
+    <div class="power-animation-overlay" id="powerAnimationOverlay">
+        <img id="powerAnimationImage" src="" alt="Power Animation">
+    </div>
+
+    <!-- Socket.IO ve oyun scriptleri -->
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" 
+            onerror="this.onerror=null; this.src='socket.io.min.js'"></script>
+    <script src="tetris.js"></script>
+</body>
+</html>

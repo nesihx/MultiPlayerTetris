@@ -1,0 +1,21 @@
+{
+  "name": "tetris-multiplayer-server",
+  "version": "1.0.0",
+  "description": "Oda tabanlı, şifreli, çok oyunculu Tetris oyunu için backend sunucusu.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "echo 'No build step required'"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["tetris", "multiplayer", "game", "socket.io"],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.1.0",
+    "socket.io": "^4.8.1"
+  }
+}
