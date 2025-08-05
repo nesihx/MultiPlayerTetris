@@ -10,7 +10,7 @@
       "destination": "/api/$1"
     },
     {
-      "source": "/(.*\\.(js|css|html|svg|gif|png|jpg|jpeg|ico|min\\.js))$",
+      "source": "/(.*\\.(js|css|html|svg|gif|png|jpg|jpeg|ico))$",
       "destination": "/api/index?file=$1"
     },
     {
