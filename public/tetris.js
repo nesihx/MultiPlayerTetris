@@ -314,10 +314,10 @@ function setupPowerButtons() {
     });
 }
 
-// WebSocket bağlantısı - Vercel için optimize edilmiş
+// WebSocket bağlantısı - Vercel API Routes için optimize edilmiş
 const socket = io({
-    transports: ['polling', 'websocket'],
-    upgrade: true,
+    transports: ['polling'],
+    upgrade: false,
     timeout: 30000,
     forceNew: false,
     reconnection: true,
@@ -329,9 +329,7 @@ const socket = io({
     path: '/socket.io/',
     autoConnect: true,
     pingTimeout: 60000,
-    pingInterval: 25000,
-    rememberUpgrade: false,
-    parser: undefined
+    pingInterval: 25000
 });
 
 // Bağlantı hatalarını dinle
